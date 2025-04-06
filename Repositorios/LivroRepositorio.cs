@@ -27,14 +27,7 @@ namespace BibliotecaConsoleApp.Repositorios
         {
             Livro? livroProcurado = Livros.Find(l => l.Id == id);
 
-            if (!(livroProcurado is null))
-            {
-                return livroProcurado;
-            }
-            else
-            {
-                throw new Exception("LIVRO NÃO ENCONTRADO.");
-            }
+            return livroProcurado ?? throw new Exception("LIVRO NÃO ENCONTRADO.");
         }
 
         public List<Livro> ListarTodos()
@@ -45,15 +38,8 @@ namespace BibliotecaConsoleApp.Repositorios
         public void Remover(int id)
         {
             Livro? livroParaExclusao = BuscarPorId(id);
-            
-            if (!(livroParaExclusao is null))
-            {
-                Livros.Remove(livroParaExclusao);
-            }
-            else
-            {
-                throw new Exception("LIVRO NÃO ENCONTRADO.");
-            }
+
+            Livros.Remove(livroParaExclusao!);
         }
     }
 }
