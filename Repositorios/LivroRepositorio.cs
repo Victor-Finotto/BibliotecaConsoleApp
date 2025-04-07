@@ -16,11 +16,18 @@ namespace BibliotecaConsoleApp.Repositorios
             Livros.Add(entidade);
         }
 
-        public void Atualizar(Livro entidade)
+        public void Atualizar(Livro entidade) //fazer commit
         {
-            // TODO: Implementar lógica de atualização de dados do livro
-            // Essa lógica será feita no serviço e chamada aqui
-            throw new NotImplementedException();
+            int indiceLivroParaEditar = Livros.FindIndex(l => entidade.Id == l.Id);
+
+            if (indiceLivroParaEditar >= 0)
+            {
+                Livros[indiceLivroParaEditar] = entidade;
+            }
+            else
+            {
+                throw new Exception("LIVRO NÃO ENCONTRADO.");
+            }
         }
 
         public Livro? BuscarPorId(int id)
