@@ -9,6 +9,11 @@ namespace BibliotecaConsoleApp.Servicos
 
         public void AdicionarLivro(Livro livro)
         {
+            if (_livroRepositorio.ListarTodos().Any(l => l.Id == livro.Id))
+            {
+                throw new Exception("JÁ EXISTE UM LIVRO COM ESSE ID.");
+            }
+
             ValidarCampoObrigatorio(livro.Titulo, "TÍTULO");
             ValidarCampoObrigatorio(livro.Autor, "AUTOR");
             ValidarCampoObrigatorio(livro.Genero, "GÊNERO");
