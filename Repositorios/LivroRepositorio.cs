@@ -16,7 +16,7 @@ namespace BibliotecaConsoleApp.Repositorios
             Livros.Add(entidade);
         }
 
-        public void Atualizar(Livro entidade) //fazer commit
+        public void Atualizar(Livro entidade)
         {
             int indiceLivroParaEditar = Livros.FindIndex(l => entidade.Id == l.Id);
 
