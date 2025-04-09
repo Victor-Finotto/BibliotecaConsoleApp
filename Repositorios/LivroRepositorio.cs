@@ -1,19 +1,25 @@
 ﻿using BibliotecaConsoleApp.Entidades;
 using BibliotecaConsoleApp.Interfaces;
+using BibliotecaConsoleApp.Utils;
 
 namespace BibliotecaConsoleApp.Repositorios
 {
     class LivroRepositorio : IRepositorio<Livro>
     {
-        public List<Livro> Livros { get; set; } = [];
+        public List<Livro> Livros { get; private set; }
+
+        public LivroRepositorio()
+        {
+            Livros = ManipuladorJson.CarregarLista<Livro>(Caminhos.Livros);
+        }
+
         public void Adicionar(Livro entidade)
         {
-            if (Livros.Contains(entidade))
-            {
+            if (Livros.Any(l => l.Id == entidade.Id))
                 throw new Exception("LIVRO JÁ EXISTENTE.");
-            }
-        
+
             Livros.Add(entidade);
+            Salvar();
         }
 
         public void Atualizar(Livro entidade)
@@ -23,6 +29,7 @@ namespace BibliotecaConsoleApp.Repositorios
             if (indiceLivroParaEditar >= 0)
             {
                 Livros[indiceLivroParaEditar] = entidade;
+                Salvar();
             }
             else
             {
@@ -32,9 +39,7 @@ namespace BibliotecaConsoleApp.Repositorios
 
         public Livro? BuscarPorId(int id)
         {
-            Livro? livroProcurado = Livros.Find(l => l.Id == id);
-
-            return livroProcurado ?? throw new Exception("LIVRO NÃO ENCONTRADO.");
+            return Livros.Find(l => l.Id == id) ?? throw new Exception("LIVRO NÃO ENCONTRADO.");
         }
 
         public List<Livro> ListarTodos()
@@ -44,9 +49,14 @@ namespace BibliotecaConsoleApp.Repositorios
 
         public void Remover(int id)
         {
-            Livro? livroParaExclusao = BuscarPorId(id);
+            Livro livroParaExclusao = BuscarPorId(id);
+            Livros.Remove(livroParaExclusao);
+            Salvar();
+        }
 
-            Livros.Remove(livroParaExclusao!);
+        private void Salvar()
+        {
+            ManipuladorJson.SalvarLista(Caminhos.Livros, Livros);
         }
     }
 }
