@@ -1,38 +1,57 @@
-# BibliotecaConsoleApp
 
-Sistema de gerenciamento de biblioteca desenvolvido em C# (Console App), com arquitetura em camadas e persist�ncia de dados em arquivos JSON.
+# 📚 BibliotecaConsoleApp
 
-## Funcionalidades
+Sistema de gerenciamento de biblioteca desenvolvido em C# (.NET), com arquitetura em camadas e execução via Console Application. O projeto visa consolidar conhecimentos em Programação Orientada a Objetos e persistência de dados com arquivos JSON (em breve).
 
-- Cadastro de livros
-- Consulta de livros
-- Remo��o de livros
-- Cadastro de usu�rios
-- Controle de empr�stimos e devolu��es
-- Hist�rico de opera��es (em breve)
+---
 
-## Tecnologias e Conceitos Utilizados
+## ✅ Funcionalidades Implementadas
 
-- C# (.NET)
-- Programa��o Orientada a Objetos (POO)
-- Arquitetura em camadas
-- Persist�ncia com JSON
-- Git e GitHub
+- ✅ **Cadastro de livros**
+- ✅ **Consulta de livros**
+- ✅ **Edição de livros com interface interativa no console**
+- ✅ **Remoção de livros**
+- ⏳ **Cadastro de usuários** *(em desenvolvimento)*
+- 🔜 **Empréstimos e devoluções** *(em breve)*
+- 🧾 **Histórico de operações** *(planejado)*
 
-## Estrutura de Pastas
+---
+
+## 🛠 Tecnologias e Conceitos
+
+- C# (.NET 9)  
+- Programação Orientada a Objetos (POO)  
+- Arquitetura em camadas (Entidades, Serviços, Repositórios, Menus, Interfaces, Utils)  
+- Console interativo com validação de dados   
+- Persistência com arquivos JSON *(em breve)*  
+
+---
+
+## 📁 Estrutura de Pastas
 
 ```
-/Entidades
-/Repositorios
-/Servicos
-/Menus
-/Utils
+/Entidades       -> Classes de domínio (Livro, Usuario, etc.)
+/Repositorios    -> Camada de acesso a dados
+/Servicos        -> Regras de negócio (ex: LivroServico)
+/Menus           -> Interação com o usuário via console
+/Interfaces      -> Contratos que definem comportamentos das classes (ex: ILivroRepositorio) 
+/Utils           -> Métodos auxiliares e validações
+Program.cs       -> Ponto de entrada da aplicação
 ```
 
-## Status do Projeto
+---
 
-Em desenvolvimento � estrutura inicial criada e publicada no GitHub.
+## 📌 Status do Projeto
 
-## Autor
+> 🚧 Em desenvolvimento  
+- CRUD completo de livros finalizado 
+- Funcionalidades de usuários e empréstimos em desenvolvimento.
+- Persistência de dados e controle de usuários serão implementados nas próximas etapas
 
-[Victor Finotto Desenvolvedor](https://github.com/Victor-Finotto)
+---
+
+## 👨‍💻 Autor
+
+**Victor Finotto**  
+.NET Developer
+[GitHub](https://github.com/Victor-Finotto)
