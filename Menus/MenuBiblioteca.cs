@@ -1,5 +1,6 @@
 ﻿using BibliotecaConsoleApp.Entidades;
 using BibliotecaConsoleApp.Servicos;
+using BibliotecaConsoleApp.Utils;
 using System.Drawing;
 
 class MenuBiblioteca
@@ -16,7 +17,7 @@ class MenuBiblioteca
         while (true)
         {
             Console.Clear();
-            ExibirMenu();
+            FormatadorMensagem.ExibirMenuPrincipal();
 
             int opcao = ObterOpcaoMenu();
 
@@ -47,24 +48,32 @@ class MenuBiblioteca
     private void CadastrarLivro()
     {
         Console.Clear();
-        Console.WriteLine("PREENCHA OS DADOS DO LIVRO:");
+        FormatadorMensagem.ExibirCabecalho("PREENCHA OS DADOS DO LIVRO:");
 
         var livrosExistentes = _livroServico.ListarTodos();
-        var livro = ObterDadosLivroDoUsuario(livrosExistentes);
+        var livro = new Livro
+        {
+            Id = ValidarIdUnico(new LivroFormState(), livrosExistentes),
+            Titulo = ValidarCampo("TÍTULO", new LivroFormState(), livrosExistentes, ValidarTextoObrigatorio),
+            Autor = ValidarCampo("AUTOR", new LivroFormState(), livrosExistentes, ValidarTextoObrigatorio),
+            Genero = ValidarCampo("GÊNERO", new LivroFormState(), livrosExistentes, ValidarTextoObrigatorio),
+            ISBN = ValidarCampo("ISBN", new LivroFormState(), livrosExistentes, ValidarIsbnUnico),
+            AnoPublicacao = ValidarCampo("ANO DE PUBLICAÇÃO", new LivroFormState(), livrosExistentes, ValidarAnoPublicacao)
+        };
 
         try
         {
             _livroServico.AdicionarLivro(livro);
-            ExibirMensagemSucesso("LIVRO CADASTRADO COM SUCESSO!");
+            FormatadorMensagem.ExibirMensagemSucesso("LIVRO CADASTRADO COM SUCESSO!");
         }
         catch (Exception ex)
         {
-            ExibirMensagemErro(ex.Message);
+            FormatadorMensagem.ExibirMensagemErro(ex.Message);
         }
 
-        Console.WriteLine("\nPRESSIONE QUALQUER TECLA PARA CONTINUAR...");
-        Console.ReadKey();
+        AguardarUsuario();
     }
+
 
     private void RemoverLivro()
     {
@@ -83,9 +92,9 @@ class MenuBiblioteca
             }
             catch (Exception ex)
             {
-                ExibirMensagemErro(ex.Message);
-                Console.WriteLine("\nPRESSIONE QUALQUER TECLA PARA TENTAR NOVAMENTE...");
-                Console.ReadKey();
+                FormatadorMensagem.ExibirMensagemErro(ex.Message);
+                
+                AguardarUsuario();
                 Console.Clear();
             }
         }
@@ -93,21 +102,20 @@ class MenuBiblioteca
         try
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            PadronizarExibicaoLivro(livroParaRemover);
+            FormatadorMensagem.ExibirDadosLivroFormatado(livroParaRemover);
             Console.ResetColor();
 
             ConfirmarOperacao();
             _livroServico.RemoverLivro(livroParaRemover.Id);
 
-            ExibirMensagemSucesso("LIVRO REMOVIDO!");
+            FormatadorMensagem.ExibirMensagemSucesso("LIVRO REMOVIDO!");
         }
         catch (Exception ex)
         {
-            ExibirMensagemErro(ex.Message);
+            FormatadorMensagem.ExibirMensagemErro(ex.Message);
         }
 
-        Console.WriteLine("\nPRESSIONE QUALQUER TECLA PARA CONTINUAR...");
-        Console.ReadKey();
+        AguardarUsuario();
     }
 
     private void AtualizarLivro()
@@ -121,7 +129,7 @@ class MenuBiblioteca
             try
             {
                 var livroOriginal = _livroServico.BuscarLivroPorId(idLivroProcurado);
-                PadronizarExibicaoLivro(livroOriginal);
+                FormatadorMensagem.ExibirDadosLivroFormatado(livroOriginal);
 
                 if (!ConfirmarOperacao("DESEJA EDITAR ESTE LIVRO?", livroOriginal))
                     return;
@@ -130,20 +138,32 @@ class MenuBiblioteca
                 _livroServico.AtualizarLivro(livroAtualizado);
 
                 Console.Clear();
-                ExibirMensagemSucesso("LIVRO ATUALIZADO COM SUCESSO!");
+                FormatadorMensagem.ExibirMensagemSucesso("LIVRO ATUALIZADO COM SUCESSO!");
                 break;
             }
             catch (Exception ex)
             {
-                ExibirMensagemErro($"{ex.Message}");
-                Console.WriteLine("\nPRESSIONE QUALQUER TECLA PARA CONTINUAR...");
-                Console.ReadKey();
+                FormatadorMensagem.ExibirMensagemErro($"{ex.Message}");
+                
+                AguardarUsuario();
                 Console.Clear();
             }
         }
 
-        Console.WriteLine("\nPRESSIONE QUALQUER TECLA PARA CONTINUAR...");
-        Console.ReadKey();
+        AguardarUsuario();
+
+    }
+
+    private void ConfirmarOperacao()
+    {
+        Console.Write("\nTEM CERTEZA QUE DESEJA EXECUTAR ESSA OPERAÇÃO? (S/N): ");
+
+        var resposta = Console.ReadLine();
+        if (resposta?.ToUpper() != "S")
+        {
+            throw new Exception("OPERAÇÃO CANCELADA");
+            return;
+        }
     }
 
     private bool ConfirmarOperacao(string mensagem, Livro livro)
@@ -151,7 +171,7 @@ class MenuBiblioteca
         while (true)
         {
             Console.Clear();
-            PadronizarExibicaoLivro(livro);
+            FormatadorMensagem.ExibirDadosLivroFormatado(livro);
 
             Console.WriteLine();
             Console.Write($"{mensagem} (S/N): ");
@@ -166,9 +186,8 @@ class MenuBiblioteca
                 return false;
             }
 
-            ExibirMensagemErro("ENTRADA INVÁLIDA. DIGITE 'S' PARA SIM OU 'N' PARA NÃO.");
-            Console.WriteLine("PRESSIONE QUALQUER TECLA PARA TENTAR NOVAMENTE...");
-            Console.ReadKey(true);
+            FormatadorMensagem.ExibirMensagemErro("ENTRADA INVÁLIDA. DIGITE 'S' PARA SIM OU 'N' PARA NÃO.");
+            AguardarUsuario();
         }
     }
 
@@ -191,62 +210,34 @@ class MenuBiblioteca
         while (true)
         {
             Console.Clear();
-            Console.WriteLine("EDIÇÃO DOS DADOS DO LIVRO:\n");
+            FormatadorMensagem.ExibirCabecalho("EDIÇÃO DOS DADOS DO LIVRO:");
 
-            MostrarCampo("ID", estado.Id.ToString());
-            MostrarCampo("TÍTULO", estado.Titulo);
-            MostrarCampo("AUTOR", estado.Autor);
-            MostrarCampo("GÊNERO", estado.Genero);
-            MostrarCampo("ISBN", estado.ISBN);
-            MostrarCampo("ANO DE PUBLICAÇÃO", estado.AnoPublicacao.ToString());
+            FormatadorMensagem.MostrarCampo("ID", estado.Id.ToString());
+            FormatadorMensagem.MostrarCampo("TÍTULO", estado.Titulo);
+            FormatadorMensagem.MostrarCampo("AUTOR", estado.Autor);
+            FormatadorMensagem.MostrarCampo("GÊNERO", estado.Genero);
+            FormatadorMensagem.MostrarCampo("ISBN", estado.ISBN);
+            FormatadorMensagem.MostrarCampo("ANO DE PUBLICAÇÃO", estado.AnoPublicacao.ToString());
 
-            Console.WriteLine("\nESCOLHA O CAMPO QUE DESEJA ALTERAR:");
-            Console.WriteLine("1 - TÍTULO");
-            Console.WriteLine("2 - AUTOR");
-            Console.WriteLine("3 - GÊNERO");
-            Console.WriteLine("4 - ISBN");
-            Console.WriteLine("5 - ANO DE PUBLICAÇÃO");
-            Console.WriteLine("0 - SALVAR E SAIR");
-
-            Console.Write("\nOPÇÃO: ");
+            FormatadorMensagem.ExibirMenuCamposEdicao();
             var entrada = Console.ReadLine();
-
 
             switch (entrada)
             {
                 case "1":
-                    estado.Titulo = LerCampoComPrefixo("TÍTULO", estado, () =>
-                        TentarLerTextoObrigatorio("NOVO TÍTULO", estado));
+                    estado.Titulo = ValidarCampo("TÍTULO", estado, livrosExistentes, ValidarTextoObrigatorio);
                     break;
                 case "2":
-                    estado.Autor = LerCampoComPrefixo("AUTOR", estado, () =>
-                        TentarLerTextoObrigatorio("NOVO AUTOR", estado));
+                    estado.Autor = ValidarCampo("AUTOR", estado, livrosExistentes, ValidarTextoObrigatorio);
                     break;
                 case "3":
-                    estado.Genero = LerCampoComPrefixo("GÊNERO", estado, () =>
-                        TentarLerTextoObrigatorio("NOVO GÊNERO", estado));
+                    estado.Genero = ValidarCampo("GÊNERO", estado, livrosExistentes, ValidarTextoObrigatorio);
                     break;
                 case "4":
-                    estado.ISBN = LerCampoComPrefixo("ISBN", estado, () =>
-                    {
-                        string? novoIsbn;
-                        do
-                        {
-                            novoIsbn = TentarLerIsbnUnico(estado, livrosExistentes);
-                        } while (novoIsbn == null);
-                        return novoIsbn;
-                    });
+                    estado.ISBN = ValidarCampo("ISBN", estado, livrosExistentes, ValidarIsbnUnico);
                     break;
                 case "5":
-                    estado.AnoPublicacao = LerCampoComPrefixo("ANO DE PUBLICAÇÃO", estado, () =>
-                    {
-                        int? novoAno;
-                        do
-                        {
-                            novoAno = TentarLerAnoValido(estado);
-                        } while (novoAno == null);
-                        return novoAno;
-                    });
+                    estado.AnoPublicacao = ValidarCampo("ANO DE PUBLICAÇÃO", estado, livrosExistentes, ValidarAnoPublicacao);
                     break;
                 case "0":
                     return new Livro
@@ -259,13 +250,13 @@ class MenuBiblioteca
                         AnoPublicacao = estado.AnoPublicacao.Value
                     };
                 default:
-                    ExibirMensagemErro("OPÇÃO INVÁLIDA. TENTE NOVAMENTE.");
+                    FormatadorMensagem.ExibirMensagemErro("OPÇÃO INVÁLIDA. TENTE NOVAMENTE.");
                     Console.ReadKey();
                     break;
             }
-
         }
     }
+
 
     private T? LerCampoComPrefixo<T>(string campo, LivroFormState form, Func<T?> leitor)
     {
@@ -274,12 +265,12 @@ class MenuBiblioteca
             Console.Clear();
             Console.WriteLine("EDIÇÃO DOS DADOS DO LIVRO:\n");
 
-            MostrarCampo("ID", form.Id?.ToString());
-            MostrarCampo("TÍTULO", form.Titulo);
-            MostrarCampo("AUTOR", form.Autor);
-            MostrarCampo("GÊNERO", form.Genero);
-            MostrarCampo("ISBN", form.ISBN);
-            MostrarCampo("ANO DE PUBLICAÇÃO", form.AnoPublicacao?.ToString());
+            FormatadorMensagem.MostrarCampo("ID", form.Id?.ToString());
+            FormatadorMensagem.MostrarCampo("TÍTULO", form.Titulo);
+            FormatadorMensagem.MostrarCampo("AUTOR", form.Autor);
+            FormatadorMensagem.MostrarCampo("GÊNERO", form.Genero);
+            FormatadorMensagem.MostrarCampo("ISBN", form.ISBN);
+            FormatadorMensagem.MostrarCampo("ANO DE PUBLICAÇÃO", form.AnoPublicacao?.ToString());
 
             Console.WriteLine();
             try
@@ -288,7 +279,7 @@ class MenuBiblioteca
             }
             catch
             {
-                ExibirMensagemErro("ENTRADA INVÁLIDA. TENTE NOVAMENTE.");
+                FormatadorMensagem.ExibirMensagemErro("ENTRADA INVÁLIDA. TENTE NOVAMENTE.");
                 Console.ReadKey();
             }
         }
@@ -304,11 +295,10 @@ class MenuBiblioteca
 
         foreach (var livro in livrosCadastrados)
         {
-            PadronizarExibicaoLivro(livro);
+            FormatadorMensagem.ExibirDadosLivroFormatado(livro);
         }
 
-        Console.WriteLine("\nPRESSIONE QUALQUER TECLA PARA CONTINUAR...");
-        Console.ReadKey();
+        AguardarUsuario();
     }
 
     private void ExibirLivroPorId()
@@ -322,38 +312,19 @@ class MenuBiblioteca
             try
             {
                 var livroEncontrado = _livroServico.BuscarLivroPorId(idLivroProcurado);
-                PadronizarExibicaoLivro(livroEncontrado);
+                FormatadorMensagem.ExibirDadosLivroFormatado(livroEncontrado);
                 break;
             }
             catch (Exception ex)
             {
-                ExibirMensagemErro($"{ex.Message}");
+                FormatadorMensagem.ExibirMensagemErro($"{ex.Message}");
                 Console.WriteLine("\nPRESSIONE QUALQUER TECLA PARA CONTINUAR...");
                 Console.ReadKey();
                 Console.Clear();
             }
         }
 
-        Console.WriteLine("\nPRESSIONE QUALQUER TECLA PARA CONTINUAR...");
-        Console.ReadKey();
-    }
-
-
-    public void PadronizarExibicaoLivro(Livro livro)
-    {
-        void EscreverLinhaFormatada(string rotulo, string valor)
-        {
-            int larguraTotal = 20;
-            Console.WriteLine($"{rotulo}{new string('.', larguraTotal - rotulo.Length)}: {valor}");
-        }
-
-        Console.WriteLine();
-        EscreverLinhaFormatada("ID", livro.Id.ToString());
-        EscreverLinhaFormatada("TÍTULO", livro.Titulo);
-        EscreverLinhaFormatada("AUTOR", livro.Autor);
-        EscreverLinhaFormatada("GÊNERO", livro.Genero);
-        EscreverLinhaFormatada("ISBN", livro.ISBN);
-        EscreverLinhaFormatada("ANO PUBLICAÇÃO", livro.AnoPublicacao.ToString());
+        AguardarUsuario();
     }
 
     private int LerIdDoUsuario(string mensagem)
@@ -366,42 +337,11 @@ class MenuBiblioteca
             if (int.TryParse(entrada, out int id) && id > 0)
                 return id;
 
-            ExibirMensagemErro("ID INVÁLIDO - DIGITE UM VALOR VÁLIDO.");
-            Console.WriteLine("\nPRESSIONE QUALQUER TECLA PARA CONTINUAR...");
-            Console.ReadKey();
+            FormatadorMensagem.ExibirMensagemErro("ID INVÁLIDO - DIGITE UM VALOR VÁLIDO.");
+
+            AguardarUsuario();
             Console.Clear();
         }
-    }
-
-    private void ExibirMenu()
-    {
-        int largura = 52;
-        string titulo = "BIBLIOTECA";
-        int margem = (largura - titulo.Length - 2) / 2;
-        string linhaHorizontal = new string('-', largura);
-
-        Console.WriteLine($"|{new string('-', margem)} {titulo} {new string('-', margem)}|");
-        Console.WriteLine($"| {"".PadRight(largura - 2)} |");
-        Console.WriteLine($"| {"ESCOLHA UMA OPÇÃO:".PadRight(largura - 2)} |");
-        Console.WriteLine($"| {"".PadRight(largura - 2)} |");
-
-        string[] opcoes = {
-            "[1] ADICIONAR LIVRO",
-            "[2] EXCLUIR LIVRO",
-            "[3] ATUALIZAR LIVRO",
-            "[4] LISTAR TODOS OS LIVROS",
-            "[5] CONSULTAR LIVRO POR ID",
-            "[0] SAIR"
-        };
-
-        foreach (var opcao in opcoes) 
-        { 
-            Console.WriteLine($"| {opcao.PadRight(largura - 2)} |");
-        }
-
-        Console.WriteLine($"| {"".PadRight(largura - 2)} |");
-        Console.WriteLine($"|{linhaHorizontal}|");
-        Console.Write("\n[OPÇÃO]: ");
     }
 
     private int ObterOpcaoMenu()
@@ -417,24 +357,13 @@ class MenuBiblioteca
             }
             catch (Exception ex)
             {
-                ExibirMensagemErro(ex.Message);
-                Console.Write("PRESSIONE QUALQUER TECLA PARA CONTINUAR...");
-                Console.ReadKey();
+                FormatadorMensagem.ExibirMensagemErro(ex.Message);
+                
+                AguardarUsuario();
                 Console.Clear();
-                ExibirMenu();
+
+                FormatadorMensagem.ExibirMenuPrincipal();
             }
-        }
-    }
-
-    private void ConfirmarOperacao()
-    {
-        Console.Write("\nTEM CERTEZA QUE DESEJA EXECUTAR ESSA OPERAÇÃO? (S/N): ");
-
-        var resposta = Console.ReadLine();
-        if (resposta?.ToUpper() != "S")
-        {
-            throw new Exception("OPERAÇÃO CANCELADA");
-            return;
         }
     }
 
@@ -451,15 +380,17 @@ class MenuBiblioteca
     {
         var form = new LivroFormState();
 
-        while (form.Id == null) form.Id = TentarLerIdUnico(form, livrosExistentes);
-        while (form.Titulo == null) form.Titulo = TentarLerTextoObrigatorio("TÍTULO", form);
-        while (form.Autor == null) form.Autor = TentarLerTextoObrigatorio("AUTOR", form);
-        while (form.Genero == null) form.Genero = TentarLerTextoObrigatorio("GÊNERO", form);
-        while (form.ISBN == null) form.ISBN = TentarLerIsbnUnico(form, livrosExistentes);
-        while (form.AnoPublicacao == null) form.AnoPublicacao = TentarLerAnoValido(form);
+        // Utilizando o método auxiliar para validar os campos de forma mais concisa
+        form.Id = ValidarCampo("ID", form, livrosExistentes, ValidarIdUnico);
+        form.Titulo = ValidarCampo("TÍTULO", form, livrosExistentes, ValidarTextoObrigatorio);
+        form.Autor = ValidarCampo("AUTOR", form, livrosExistentes, ValidarTextoObrigatorio);
+        form.Genero = ValidarCampo("GÊNERO", form, livrosExistentes, ValidarTextoObrigatorio);
+        form.ISBN = ValidarCampo("ISBN", form, livrosExistentes, ValidarIsbnUnico);
+        form.AnoPublicacao = ValidarCampo("Ano de Publicação", form, livrosExistentes, ValidarAnoPublicacao);
 
+        // Exibe o formulário final
         Console.Clear();
-        ExibirFormulario(form);
+        FormatadorMensagem.ExibirFormulario(form);
 
         return new Livro
         {
@@ -472,119 +403,67 @@ class MenuBiblioteca
         };
     }
 
-    private void MostrarCampo(string label, string? valor)
+    // Método genérico para validar os campos de forma reutilizável
+    private T ValidarCampo<T>(string campo, LivroFormState form, List<Livro> livros, Func<LivroFormState, List<Livro>, T> validacao)
     {
-        if (!string.IsNullOrWhiteSpace(valor))
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(label.PadRight(20) + $": {valor}");
-            Console.ResetColor();
-        }
-    }
-
-    private int? TentarLerIdUnico(LivroFormState form, List<Livro> livros)
-    {
-        Console.Clear();
-        ExibirFormulario(form);
-        Console.Write("ID: ");
-        var entrada = Console.ReadLine();
-
-        if (int.TryParse(entrada, out int idValido) && idValido > 0)
-        {
-            if (livros.Any(l => l.Id == idValido))
-            {
-                ExibirMensagemErro("JÁ EXISTE UM LIVRO COM ESSE ID. DIGITE OUTRO.");
-                Console.ReadKey();
-                return null;
-            }
-            return idValido;
-        }
-
-        ExibirMensagemErro("O CAMPO ID DEVE SER UM NÚMERO INTEIRO POSITIVO.");
-        Console.ReadKey();
-        return null;
-    }
-
-
-    private string TentarLerTextoObrigatorio(string campo, LivroFormState form)
-    {
-        while (true)
+        T valor;
+        do
         {
             Console.Clear();
-            ExibirFormulario(form);
+            FormatadorMensagem.ExibirFormulario(form);
             Console.Write($"\n{campo}: ");
-            var entrada = Console.ReadLine();
+            valor = validacao(form, livros);
 
-            if (!string.IsNullOrWhiteSpace(entrada))
-                return entrada;
+            if (valor == null)
+            {
+                FormatadorMensagem.ExibirMensagemErro($"O campo {campo} é obrigatório ou inválido.");
+                Console.ReadKey();
+            }
+        } while (valor == null);
 
-            ExibirMensagemErro("ESTE CAMPO É OBRIGATÓRIO.");
-            Console.ReadKey();
-        }
+        return valor;
     }
 
-    private string? TentarLerIsbnUnico(LivroFormState form, List<Livro> livros)
+    private int ValidarIdUnico(LivroFormState form, List<Livro> livros)
     {
-        Console.Clear();
-        ExibirFormulario(form);
-        Console.Write("\nISBN: ");
         var entrada = Console.ReadLine();
+        if (int.TryParse(entrada, out int id) && id > 0 && !livros.Any(l => l.Id == id))
+            return id;
 
-        if (string.IsNullOrWhiteSpace(entrada))
-        {
-            ExibirMensagemErro("ESTE CAMPO É OBRIGATÓRIO.");
-            Console.ReadKey();
-            return null;
-        }
-
-        if (livros.Any(l => l.ISBN == entrada))
-        {
-            ExibirMensagemErro("JÁ EXISTE UM LIVRO COM ESSE ISBN. DIGITE OUTRO.");
-            Console.ReadKey();
-            return null;
-        }
-
-        return entrada;
+        FormatadorMensagem.ExibirMensagemErro("ID inválido ou já existente. Tente novamente.");
+        return 0; // Retorna um valor padrão para indicar erro
     }
 
-    private int? TentarLerAnoValido(LivroFormState form)
+    private string ValidarTextoObrigatorio(LivroFormState form, List<Livro> livros)
     {
-        Console.Clear();
-        ExibirFormulario(form);
-        Console.Write("\nANO DE PUBLICAÇÃO: ");
         var entrada = Console.ReadLine();
+        return !string.IsNullOrWhiteSpace(entrada) ? entrada : null;
+    }
 
-        if (int.TryParse(entrada, out int anoValido) && anoValido > 1000 && anoValido <= DateTime.Now.Year)
-            return anoValido;
+    private string ValidarIsbnUnico(LivroFormState form, List<Livro> livros)
+    {
+        var isbn = Console.ReadLine();
+        if (livros.Any(l => l.ISBN == isbn))
+        {
+            FormatadorMensagem.ExibirMensagemErro("Já existe um livro com esse ISBN. Digite outro.");
+            return null;
+        }
+        return isbn;
+    }
 
-        ExibirMensagemErro("ANO INVÁLIDO. TENTE NOVAMENTE.");
+    private int ValidarAnoPublicacao(LivroFormState form, List<Livro> livros)
+    {
+        var entrada = Console.ReadLine();
+        if (int.TryParse(entrada, out int ano) && ano > 1000 && ano <= DateTime.Now.Year)
+            return ano;
+
+        FormatadorMensagem.ExibirMensagemErro("Ano inválido. Tente novamente.");
+        return 0; // Retorna um valor padrão para indicar erro
+    }
+
+    public static void AguardarUsuario()
+    {
+        Console.WriteLine("\nPRESSIONE QUALQUER TECLA PARA CONTINUAR...");
         Console.ReadKey();
-        return null;
-    }
-
-    private void ExibirFormulario(LivroFormState form)
-    {
-        Console.WriteLine("PREENCHA OS DADOS DO LIVRO:\n");
-
-        MostrarCampo("ID", form.Id?.ToString());
-        MostrarCampo("TÍTULO", form.Titulo);
-        MostrarCampo("AUTOR", form.Autor);
-        MostrarCampo("GÊNERO", form.Genero);
-        MostrarCampo("ISBN", form.ISBN);
-        MostrarCampo("ANO DE PUBLICAÇÃO", form.AnoPublicacao?.ToString());
-    }
-
-    private void ExibirMensagemErro(string mensagem)
-    {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine($"\n[ERRO] {mensagem}");
-        Console.ResetColor();
-    }
-
-    private void ExibirMensagemSucesso(string mensagem)
-    {
-        Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"\n[SUCESSO] {mensagem}");
-        Console.ResetColor();
     }
 }
