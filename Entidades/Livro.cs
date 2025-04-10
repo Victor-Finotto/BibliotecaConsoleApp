@@ -2,7 +2,7 @@
 
 namespace BibliotecaConsoleApp.Entidades
 {
-    class Livro : IEntidade
+    public class Livro : IEntidade
     {
         public required int Id { get; init; }
         public required string Titulo { get; set; }
