@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BibliotecaConsoleApp.Menus
+namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
 {
-    class MenuUsuario
+    class EmprestimoMenu
     {
     }
 }

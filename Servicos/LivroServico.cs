@@ -4,40 +4,31 @@ using BibliotecaConsoleApp.Repositorios;
 
 namespace BibliotecaConsoleApp.Servicos
 {
-    class LivroServico(LivroRepositorio livroRepositorio)
+    public class LivroServico(LivroRepositorio livroRepositorio)
     {
-        private readonly LivroRepositorio _livroRepositorio = livroRepositorio;
+        public readonly LivroRepositorio _livroRepositorio = livroRepositorio;
 
         public void AdicionarLivro(Livro livro)
         {
-            if (_livroRepositorio.ListarTodos().Any(l => l.Id == livro.Id))
-            {
-                throw new Exception("JÁ EXISTE UM LIVRO COM ESSE ID.");
-            }
+            ValidarLivroParaCadastro(livro);
+            PadronizarInformacoesDoLivro(livro);
+            _livroRepositorio.Adicionar(livro);
+        }
 
+        private void ValidarLivroParaCadastro(Livro livro)
+        {
+            ValidarIdLivro(livro.Id);
             ValidarCampoObrigatorio(livro.Titulo, "TÍTULO");
             ValidarCampoObrigatorio(livro.Autor, "AUTOR");
             ValidarCampoObrigatorio(livro.Genero, "GÊNERO");
             ValidarCampoObrigatorio(livro.ISBN, "ISBN");
-
-            if (livro.AnoPublicacao < 1000 || livro.AnoPublicacao > DateTime.Now.Year)
-            {
-                throw new Exception("ANO DE PUBLICAÇÃO INVÁLIDO");
-            }
-
-            if (_livroRepositorio.ListarTodos().Any(l => l.ISBN == livro.ISBN))
-            {
-                throw new Exception("JÁ EXISTE UM LIVRO CADASTRADO COM ESSE ISBN.");
-            }
-
-            PadronizarInformacoesDoLivro(livro);
-
-            _livroRepositorio.Adicionar(livro);
+            ValidarISBN(livro.ISBN);
+            ValidarAnoPublicacao(livro.AnoPublicacao);
         }
 
         public void RemoverLivro(int id)
         {
-            ValidarIdLivro(id);
+            ValidarIdLivro(id, deveSerUnico: false);
 
             _livroRepositorio.Remover(id);
         }
@@ -45,6 +36,7 @@ namespace BibliotecaConsoleApp.Servicos
         public void AtualizarLivro(Livro livroAtualizado)
         {
             var livroExistente = _livroRepositorio.BuscarPorId(livroAtualizado.Id);
+            
             if (livroExistente == null)
                 throw new Exception("LIVRO NÃO ENCONTRADO.");
 
@@ -72,14 +64,27 @@ namespace BibliotecaConsoleApp.Servicos
             }
         }
 
-        public void ValidarIdLivro(int id)
+        public void ValidarIdLivro(int id, bool deveSerUnico = true)
         {
             if (id <= 0)
-            {
                 throw new Exception("ID INVÁLIDO. O ID DEVE SER MAIOR QUE ZERO.");
-            }
 
-            var livro = _livroRepositorio.BuscarPorId(id);
+            if (deveSerUnico && _livroRepositorio.BuscarPorId(id) != null)
+                throw new Exception("JÁ EXISTE UM LIVRO COM ESSE ID.");
+        }
+
+        public void ValidarISBN(string isbn)
+        {
+            if (_livroRepositorio.ListarTodos().Any(l => l.ISBN == isbn))
+                throw new Exception("JÁ EXISTE UM LIVRO COM ESSE ISBN.");
+        }
+
+        public void ValidarAnoPublicacao(int anoPublicacao)
+        {
+            if (anoPublicacao < 1000 || anoPublicacao > DateTime.Now.Year)
+            {
+                throw new Exception("ANO DE PUBLICAÇÃO INVÁLIDO");
+            }
         }
 
         public void PadronizarInformacoesDoLivro(Livro livro)

@@ -4,7 +4,7 @@ using BibliotecaConsoleApp.Utils;
 
 namespace BibliotecaConsoleApp.Repositorios
 {
-    class LivroRepositorio : IRepositorio<Livro>
+    public class LivroRepositorio : IRepositorio<Livro>
     {
         public List<Livro> Livros { get; private set; }
 
@@ -39,7 +39,7 @@ namespace BibliotecaConsoleApp.Repositorios
 
         public Livro? BuscarPorId(int id)
         {
-            return Livros.Find(l => l.Id == id) ?? throw new Exception("LIVRO NÃO ENCONTRADO.");
+            return Livros.Find(l => l.Id == id);
         }
 
         public List<Livro> ListarTodos()
