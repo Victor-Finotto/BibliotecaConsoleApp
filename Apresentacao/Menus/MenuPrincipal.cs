@@ -1,20 +1,23 @@
 ﻿using BibliotecaConsoleApp.Apresentacao.Menus.Submenus;
-using BibliotecaConsoleApp.Repositorios;
 using BibliotecaConsoleApp.Servicos;
+using BibliotecaConsoleApp.Sessao;
 using BibliotecaConsoleApp.Utils;
 
 public class MenuPrincipal
 {
+    private readonly SessaoContexto _sessaoContexto;
+    private readonly LivroMenu _livroMenu;
+    private readonly UsuarioMenu _usuarioMenu;
+
+    public MenuPrincipal(SessaoContexto sessaoContexto, LivroMenu livroMenu, UsuarioMenu usuarioMenu)
+    {
+        _sessaoContexto = sessaoContexto;
+        _livroMenu = livroMenu;
+        _usuarioMenu = usuarioMenu;
+    }
+
     public void ExibirMenu()
     {
-        var livroRepositorio = new LivroRepositorio();
-        var livroServico = new LivroServico(livroRepositorio);
-        var livroMenu = new LivroMenu(livroServico);
-
-        var usuarioRepositorio = new UsuarioRepositorio();
-        var usuarioServico = new UsuarioServico(usuarioRepositorio);
-        var usuarioMenu = new UsuarioMenu(usuarioServico);
-
         while (true)
         {
             Console.Clear();
@@ -30,9 +33,9 @@ public class MenuPrincipal
 
             switch (opcao)
             {
-                case 1: livroMenu.ExibirMenu(); break;
-                case 2: usuarioMenu.ExibirMenu(); break;
-                case 3: //EmprestimoMenu.ExibirMenu(); break;
+                case 1: _livroMenu.ExibirMenu(); break;
+                case 2: _usuarioMenu.ExibirMenu(); break;
+                case 3: // EmprestimoMenu.ExibirMenu(); break;
                 case 0: return;
             }
         }
