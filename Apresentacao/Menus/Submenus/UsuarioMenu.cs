@@ -1,15 +1,22 @@
-﻿
-
-using BibliotecaConsoleApp.Apresentacao.Formularios;
+﻿using BibliotecaConsoleApp.Apresentacao.Formularios;
 using BibliotecaConsoleApp.Entidades;
 using BibliotecaConsoleApp.Servicos;
+using BibliotecaConsoleApp.Sessao;
 using BibliotecaConsoleApp.Utils;
 
 namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
 {
-    public class UsuarioMenu(UsuarioServico usuarioServico)
+    public class UsuarioMenu
     {
-        public readonly UsuarioServico _usuarioServico = usuarioServico;
+        private readonly UsuarioServico _usuarioServico;
+        private readonly SessaoContexto _sessao;
+
+        public UsuarioMenu(UsuarioServico usuarioServico, SessaoContexto sessao)
+        {
+            _usuarioServico = usuarioServico;
+            _sessao = sessao;
+        }
+
         public void ExibirMenu()
         {
             while (true)
@@ -17,13 +24,14 @@ namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
                 Console.Clear();
                 MenuRenderer.ExibirMenu("GERENCIAR USUÁRIOS", new string[]
                 {
-                "[1] ADICIONAR USUÁRIO",
-                "[2] EXCLUIR USUÁRIO",
-                "[3] EDITAR USUÁRIO",
-                "[4] LISTAR TODOS OS USUÁRIO",
-                "[5] CONSULTAR USUÁRIO POR ID",
-                "[0] SAIR"
-                });
+                    "[1] ADICIONAR USUÁRIO",
+                    "[2] EXCLUIR USUÁRIO",
+                    "[3] EDITAR USUÁRIO",
+                    "[4] LISTAR TODOS OS USUÁRIO",
+                    "[5] CONSULTAR USUÁRIO POR ID",
+                    "[6] SELECIONAR USUÁRIO",
+                    "[0] SAIR"
+                }, _sessao.UsuarioSelecionado);
 
                 int opcao = LeitorConsole.LerNumero("\nDIGITE A OPÇÃO: ");
 
@@ -34,6 +42,7 @@ namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
                     case 3: EditarUsuario(); break;
                     case 4: ExibirUsuariosCadastrados(); break;
                     case 5: ExibirUsuarioPorId(); break;
+                    case 6: SelecionarUsuario(); break;
                     case 0: return;
                     default: break;
                 }
@@ -102,29 +111,8 @@ namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
         {
             Console.Clear();
 
-            Usuario? usuarioParaExcluir = null;
-
-            while (true)
-            {
-                Console.Clear();
-                int idUsuarioParaExcluir = LeitorConsole.LerNumero("INFORME O ID DO USUÁRIO QUE DESEJA REMOVER | [0] PARA CANCELAR: ");
-
-                if (idUsuarioParaExcluir == 0)
-                {
-                    FormatadorMensagem.ExibirMensagemInfo("OPERAÇÃO DE EXCLUSÃO CANCELADA PELO USUÁRIO.");
-                    return;
-                }
-
-                try
-                {
-                    usuarioParaExcluir = _usuarioServico.BuscarPorId(idUsuarioParaExcluir);
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    FormatadorMensagem.ExibirMensagemErro(ex);
-                }
-            }
+            var usuarioParaExcluir = BuscarUsuarioPorId("INFORME O ID DO USUÁRIO QUE DESEJA REMOVER | [0] PARA CANCELAR: ", "OPERAÇÃO DE EXCLUSÃO CANCELADA PELO USUÁRIO.");
+            if (usuarioParaExcluir == null) return;
 
             try
             {
@@ -146,29 +134,9 @@ namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
         private void EditarUsuario()
         {
             Console.Clear();
-            Usuario? usuarioParaEditar = null;
 
-            while (true)
-            {
-                Console.Clear();
-                int idUsuarioParaEditar = LeitorConsole.LerNumero("INFORME O ID DO USUÁRIO QUE DESEJA EDITAR | [0] PARA CANCELAR: ");
-
-                if (idUsuarioParaEditar == 0)
-                {
-                    FormatadorMensagem.ExibirMensagemInfo("OPERAÇÃO DE EDIÇÃO CANCELADA PELO USUÁRIO.");
-                    return;
-                }
-
-                try
-                {
-                    usuarioParaEditar = _usuarioServico.BuscarPorId(idUsuarioParaEditar);
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    FormatadorMensagem.ExibirMensagemErro(ex);
-                }
-            }
+            var usuarioParaEditar = BuscarUsuarioPorId("INFORME O ID DO USUÁRIO QUE DESEJA EDITAR | [0] PARA CANCELAR: ", "OPERAÇÃO DE EDIÇÃO CANCELADA PELO USUÁRIO.");
+            if (usuarioParaEditar == null) return;
 
             var usuarioFormState = new UsuarioFormState(_usuarioServico);
             usuarioFormState.PreencherCamposComDadosExistentes(usuarioParaEditar);
@@ -267,5 +235,40 @@ namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
             FormatadorMensagem.ExibirUsuariosFormatados(usuariosCadastrados);
         }
 
+        private void SelecionarUsuario()
+        {
+            Console.Clear();
+
+            var usuarioSelecionado = BuscarUsuarioPorId("DIGITE O ID DO USUÁRIO QUE DESEJA SELECIONAR | [0] PARA CANCELAR: ", "OPERAÇÃO DE SELEÇÃO CANCELADA PELO USUÁRIO.");
+            if (usuarioSelecionado == null) return;
+
+            _sessao.UsuarioSelecionado = usuarioSelecionado;
+        }
+
+        // Método Auxiliar para Buscar Usuário por ID
+        private Usuario? BuscarUsuarioPorId(string mensagem, string mensagemCancelamento)
+        {
+            while (true)
+            {
+                Console.Clear();
+                int idUsuario = LeitorConsole.LerNumero(mensagem);
+
+                if (idUsuario == 0)
+                {
+                    FormatadorMensagem.ExibirMensagemInfo(mensagemCancelamento);
+                    return null;
+                }
+
+                try
+                {
+                    var usuario = _usuarioServico.BuscarPorId(idUsuario);
+                    return usuario;
+                }
+                catch (Exception ex)
+                {
+                    FormatadorMensagem.ExibirMensagemErro(ex);
+                }
+            }
+        }
     }
 }
