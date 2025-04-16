@@ -1,11 +1,18 @@
 ﻿using BibliotecaConsoleApp.Entidades;
 using BibliotecaConsoleApp.Interfaces;
+using BibliotecaConsoleApp.Utils;
 
 namespace BibliotecaConsoleApp.Repositorios
 {
-    class UsuarioRepositorio : IRepositorio<Usuario>
+    public class UsuarioRepositorio : IRepositorio<Usuario>
     {
-        public List<Usuario> Usuarios { get; set; } = [];
+        public List<Usuario> Usuarios { get; private set; }
+
+        public UsuarioRepositorio()
+        {
+            Usuarios = ManipuladorJson.CarregarLista<Usuario>(Caminhos.Usuarios);
+        }
+
         public void Adicionar(Usuario entidade)
         {
             if (Usuarios.Contains(entidade))
@@ -18,16 +25,22 @@ namespace BibliotecaConsoleApp.Repositorios
 
         public void Atualizar(Usuario entidade)
         {
-            // TODO: Implementar lógica de atualização de dados do Usuário
-            // Essa lógica será feita no serviço e chamada aqui
-            throw new NotImplementedException();
+            int indiceUsuarioParaEditar = Usuarios.FindIndex(l => entidade.Id == l.Id);
+
+            if (indiceUsuarioParaEditar >= 0)
+            {
+                Usuarios[indiceUsuarioParaEditar] = entidade;
+                Salvar();
+            }
+            else
+            {
+                throw new Exception("USUÁRIO NÃO ENCONTRADO.");
+            }
         }
 
         public Usuario? BuscarPorId(int id)
         {
-            Usuario? usuarioProcurado = Usuarios.Find(u => u.Id == id);
-
-            return usuarioProcurado ?? throw new Exception("USUARIO NÃO ENCONTRADO.");
+            return Usuarios.Find(u => u.Id == id);
         }
 
         public List<Usuario> ListarTodos()
@@ -40,6 +53,11 @@ namespace BibliotecaConsoleApp.Repositorios
             Usuario? usuarioParaExclusao = BuscarPorId(id);
 
             Usuarios.Remove(usuarioParaExclusao!);
+        }
+
+        private void Salvar()
+        {
+            ManipuladorJson.SalvarLista(Caminhos.Usuarios, Usuarios);
         }
     }
 }

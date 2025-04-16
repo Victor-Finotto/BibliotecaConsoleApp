@@ -54,7 +54,7 @@ namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
 
             try
             {
-                _livroServico.AdicionarLivro(livro);
+                _livroServico.Adicionar(livro);
                 FormatadorMensagem.ExibirMensagemSucesso("LIVRO CADASTRADO!");
             }
             catch (Exception ex)
@@ -115,7 +115,7 @@ namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
 
                 try
                 {
-                    livroParaExcluir = _livroServico.BuscarLivroPorId(idLivroParaExcluir);
+                    livroParaExcluir = _livroServico.BuscarPorId(idLivroParaExcluir);
                     break;
                 }
                 catch (Exception ex)
@@ -131,7 +131,7 @@ namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
                 Console.ResetColor();
 
                 FormatadorMensagem.ConfirmarOperacao();
-                _livroServico.RemoverLivro(livroParaExcluir.Id);
+                _livroServico.Remover(livroParaExcluir.Id);
 
                 FormatadorMensagem.ExibirMensagemSucesso("LIVRO REMOVIDO!");
             }
@@ -159,7 +159,7 @@ namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
 
                 try
                 {
-                    livroParaEditar = _livroServico.BuscarLivroPorId(idLivroParaEditar);
+                    livroParaEditar = _livroServico.BuscarPorId(idLivroParaEditar);
                     break;
                 }
                 catch (Exception ex)
@@ -261,7 +261,7 @@ namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
 
             try
             {
-                _livroServico.AtualizarLivro(livroParaEditar);
+                _livroServico.Atualizar(livroParaEditar);
                 FormatadorMensagem.ExibirMensagemSucesso("LIVRO ATUALIZADO COM SUCESSO!");
             }
             catch (Exception ex)
@@ -269,8 +269,6 @@ namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
                 FormatadorMensagem.ExibirMensagemErro(ex);
             }
         }
-
-
 
         private void ExibirLivroPorId()
         {
@@ -289,7 +287,7 @@ namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
 
                 try
                 {
-                    var livroEncontrado = _livroServico.BuscarLivroPorId(idLivroProcurado);
+                    var livroEncontrado = _livroServico.BuscarPorId(idLivroProcurado);
                     FormatadorMensagem.ExibirLivroFormatado(livroEncontrado);
                     break;
                 }

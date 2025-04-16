@@ -4,11 +4,11 @@ using BibliotecaConsoleApp.Repositorios;
 
 namespace BibliotecaConsoleApp.Servicos
 {
-    public class LivroServico(LivroRepositorio livroRepositorio)
+    public class LivroServico(LivroRepositorio livroRepositorio) : IRepositorio<Livro>
     {
-        public readonly LivroRepositorio _livroRepositorio = livroRepositorio;
+        private readonly LivroRepositorio _livroRepositorio = livroRepositorio;
 
-        public void AdicionarLivro(Livro livro)
+        public void Adicionar(Livro livro)
         {
             ValidarLivroParaCadastro(livro);
             PadronizarInformacoesDoLivro(livro);
@@ -26,14 +26,14 @@ namespace BibliotecaConsoleApp.Servicos
             ValidarAnoPublicacao(livro.AnoPublicacao);
         }
 
-        public void RemoverLivro(int id)
+        public void Remover(int id)
         {
             ValidarIdLivro(id, deveSerUnico: false);
 
             _livroRepositorio.Remover(id);
         }
 
-        public void AtualizarLivro(Livro livroAtualizado)
+        public void Atualizar(Livro livroAtualizado)
         {
             var livroExistente = _livroRepositorio.BuscarPorId(livroAtualizado.Id);
             
@@ -46,7 +46,7 @@ namespace BibliotecaConsoleApp.Servicos
             _livroRepositorio.Atualizar(livroAtualizado);
         }
 
-        public Livro? BuscarLivroPorId(int id)
+        public Livro? BuscarPorId(int id)
         {
             var livro = _livroRepositorio.BuscarPorId(id);
 

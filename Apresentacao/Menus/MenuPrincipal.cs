@@ -11,6 +11,10 @@ public class MenuPrincipal
         var livroServico = new LivroServico(livroRepositorio);
         var livroMenu = new LivroMenu(livroServico);
 
+        var usuarioRepositorio = new UsuarioRepositorio();
+        var usuarioServico = new UsuarioServico(usuarioRepositorio);
+        var usuarioMenu = new UsuarioMenu(usuarioServico);
+
         while (true)
         {
             Console.Clear();
@@ -27,7 +31,7 @@ public class MenuPrincipal
             switch (opcao)
             {
                 case 1: livroMenu.ExibirMenu(); break;
-                case 2: //UsuarioMenu.ExibirMenu(); break;
+                case 2: usuarioMenu.ExibirMenu(); break;
                 case 3: //EmprestimoMenu.ExibirMenu(); break;
                 case 0: return;
             }

@@ -106,5 +106,30 @@ namespace BibliotecaConsoleApp.Utils
                 return;
             }
         }
+
+        public static void ExibirUsuariosFormatados(IEnumerable<Usuario> usuarios)
+        {
+            foreach (var usuario in usuarios)
+            {
+                void EscreverLinhaFormatada(string rotulo, string valor)
+                {
+                    int larguraTotal = 20;
+                    Console.WriteLine($"{rotulo}{new string('.', larguraTotal - rotulo.Length)}: {valor}");
+                }
+
+                Console.WriteLine();
+                EscreverLinhaFormatada("ID", usuario.Id.ToString());
+                EscreverLinhaFormatada("NOME", usuario.Nome);
+                EscreverLinhaFormatada("E-MAIL", usuario.Email);
+            }
+
+            AguardarUsuario();
+        }
+
+        public static void ExibirUsuarioFormatado(Usuario usuario)
+        {
+            ExibirUsuariosFormatados(new[] { usuario });
+        }
+
     }
 }
