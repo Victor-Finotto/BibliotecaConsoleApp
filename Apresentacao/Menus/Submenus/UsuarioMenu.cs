@@ -245,7 +245,6 @@ namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
             _sessao.UsuarioSelecionado = usuarioSelecionado;
         }
 
-        // Método Auxiliar para Buscar Usuário por ID
         private Usuario? BuscarUsuarioPorId(string mensagem, string mensagemCancelamento)
         {
             while (true)
@@ -262,6 +261,10 @@ namespace BibliotecaConsoleApp.Apresentacao.Menus.Submenus
                 try
                 {
                     var usuario = _usuarioServico.BuscarPorId(idUsuario);
+
+                    FormatadorMensagem.ExibirUsuarioFormatado(usuario);
+                    FormatadorMensagem.ExibirMensagemSucesso($"USUÁRIO SELECIONADO COM SUCESSO.");
+
                     return usuario;
                 }
                 catch (Exception ex)

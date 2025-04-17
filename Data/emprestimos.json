@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "Id": 1,
+    "IdUsuario": 2,
+    "IdLivro": 1,
+    "DataEmprestimo": "2025-04-16T00:00:00-03:00",
+    "DataDevolucao": null,
+    "DataPrevistaDevolucao": "2026-09-24T00:00:00",
+    "Devolvido": false
+  }
+]

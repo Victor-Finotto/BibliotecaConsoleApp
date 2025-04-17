@@ -58,6 +58,27 @@
             }
         }
 
+        public static DateTime LerData(string mensagem)
+        {
+            Console.Write(mensagem);
+            int linhaCampo = Console.CursorTop;
+            int colunaCampo = Console.CursorLeft;
+            Console.SetCursorPosition(colunaCampo, linhaCampo);
+
+            DateTime data;
+
+            while (true)
+            {
+                LimparLinhaCampo(linhaCampo, colunaCampo);
+                string entrada = Console.ReadLine();
+
+                if (DateTime.TryParseExact(entrada, "dd/MM/yyyy", null, System.Globalization.DateTimeStyles.None, out data))
+                    return data;
+                else
+                    throw new Exception("DATA INVÁLIDA. TENTE NOVAMENTE.");
+            }
+        }
+
         private static void LimparLinhaCampo(int linha, int coluna)
         {
             Console.SetCursorPosition(coluna, linha);

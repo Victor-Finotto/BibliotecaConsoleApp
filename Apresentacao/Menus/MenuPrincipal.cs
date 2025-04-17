@@ -8,12 +8,14 @@ public class MenuPrincipal
     private readonly SessaoContexto _sessaoContexto;
     private readonly LivroMenu _livroMenu;
     private readonly UsuarioMenu _usuarioMenu;
+    private readonly EmprestimoMenu _emprestimoMenu;
 
-    public MenuPrincipal(SessaoContexto sessaoContexto, LivroMenu livroMenu, UsuarioMenu usuarioMenu)
+    public MenuPrincipal(SessaoContexto sessaoContexto, LivroMenu livroMenu, UsuarioMenu usuarioMenu, EmprestimoMenu emprestimoMenu)
     {
         _sessaoContexto = sessaoContexto;
         _livroMenu = livroMenu;
         _usuarioMenu = usuarioMenu;
+        _emprestimoMenu = emprestimoMenu;
     }
 
     public void ExibirMenu()
@@ -35,7 +37,7 @@ public class MenuPrincipal
             {
                 case 1: _livroMenu.ExibirMenu(); break;
                 case 2: _usuarioMenu.ExibirMenu(); break;
-                case 3: // EmprestimoMenu.ExibirMenu(); break;
+                case 3: _emprestimoMenu.ExibirMenu(); break;
                 case 0: return;
             }
         }

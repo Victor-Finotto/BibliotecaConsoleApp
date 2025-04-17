@@ -1,11 +1,18 @@
 ﻿using BibliotecaConsoleApp.Entidades;
 using BibliotecaConsoleApp.Interfaces;
+using BibliotecaConsoleApp.Utils;
 
 namespace BibliotecaConsoleApp.Repositorios
 {
-    class EmprestimoRepositorio : IRepositorio<Emprestimo>
+    public class EmprestimoRepositorio : IRepositorio<Emprestimo>
     {
         public List<Emprestimo> Emprestimos { get; set; } = [];
+
+        public EmprestimoRepositorio()
+        {
+            Emprestimos = ManipuladorJson.CarregarLista<Emprestimo>(Caminhos.Emprestimos);
+        }
+
         public void Adicionar(Emprestimo entidade)
         {
             Emprestimos.Add(entidade);
@@ -13,17 +20,22 @@ namespace BibliotecaConsoleApp.Repositorios
 
         public void Atualizar(Emprestimo entidade)
         {
-            // TODO: Implementar lógica de atualização de dados do Emprestimo
-            // Essa lógica será feita no serviço e chamada aqui
-            throw new NotImplementedException();
+            int indiceEmprestimoParaEditar = Emprestimos.FindIndex(l => entidade.Id == l.Id);
+
+            if (indiceEmprestimoParaEditar >= 0)
+            {
+                Emprestimos[indiceEmprestimoParaEditar] = entidade;
+                Salvar();
+            }
+            else
+            {
+                throw new Exception("EMPRÉSTIMO NÃO ENCONTRADO.");
+            }
         }
 
         public Emprestimo? BuscarPorId(int id)
         {
-            Emprestimo? registroProcurado = Emprestimos.Find(e => e.Id == id);
-
-            return registroProcurado ?? throw new Exception("REGISTRO NÃO ENCONTRADO.");
-
+            return Emprestimos.Find(e => e.Id == id);
         }
 
         public List<Emprestimo> ListarTodos()
@@ -37,5 +49,11 @@ namespace BibliotecaConsoleApp.Repositorios
 
             Emprestimos.Remove(registroParaExclusao!);
         }
+
+        private void Salvar()
+        {
+            ManipuladorJson.SalvarLista(Caminhos.Emprestimos, Emprestimos);
+        }
     }
 }
+

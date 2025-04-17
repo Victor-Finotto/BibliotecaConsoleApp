@@ -131,5 +131,32 @@ namespace BibliotecaConsoleApp.Utils
             ExibirUsuariosFormatados(new[] { usuario });
         }
 
+        public static void ExibirEmprestimosFormatados(IEnumerable<Emprestimo> emprestimos)
+        {
+            foreach (var emprestimo in emprestimos)
+            {
+                void EscreverLinhaFormatada(string rotulo, string valor)
+                {
+                    int larguraTotal = 20;
+                    Console.WriteLine($"{rotulo}{new string('.', larguraTotal - rotulo.Length)}: {valor}");
+                }
+
+                Console.WriteLine();
+                EscreverLinhaFormatada("ID EMPRÉSTIMO", emprestimo.Id.ToString());
+                EscreverLinhaFormatada("ID USUÁRIO", emprestimo.IdUsuario.ToString());
+                EscreverLinhaFormatada("ID LIVRO", emprestimo.IdLivro.ToString());
+                EscreverLinhaFormatada("DATA DE EMPRÉSTIMO", emprestimo.DataEmprestimo.ToString("dd/MM/yyyy"));
+                EscreverLinhaFormatada("DATA DE DEVOLUÇÃO", emprestimo.DataDevolucao?.ToString("dd/MM/yyyy") ?? "NÃO CADASTRADO");
+                EscreverLinhaFormatada("PREVISÃO", emprestimo.DataPrevistaDevolucao.ToString("dd/MM/yyyy"));
+            }
+
+            AguardarUsuario();
+        }
+
+        public static void ExibirEmprestimoFormatado(Emprestimo emprestimo)
+        {
+            ExibirEmprestimosFormatados(new[] { emprestimo });
+        }
+
     }
 }
